@@ -1,0 +1,50 @@
+---
+title: "MHC class-I binding prediction performance evaluation - cross-validation"
+author: Maria Bonsack
+date: November 30, 2018
+output: md_document
+---
+
+# Introduction
+
+The following R-script was used to perform a performance evaluation of frequently used online available MHC class-I prediction algorithms for calculation and cross-validation of individual thresholds.
+
+The performance evaluation is described in the article "Performance evaluation of MHC class-I binding prediction tools based on an experimentally validated MHC-peptide binding dataset" by Bonsack, Hoppe et al. in Cancer Immunology Research (in Review).
+
+From Material and Methods:
+"Calculation and validation of recommended decision thresholds Based on our experimental binding affinity data we calculated new threshold values for each analyzed prediction algorithm, HLA type and peptide length. These recommended threshold values were selected based on the following criteria: 1) specificity &ge;0.66 (equal to FPR &le;0.33), 2) TPR &ge;2xFPR and 3) the threshold yielding the highest possible sensitivity within the limits defined in 1) and 2). Lacking a validation dataset (a second set of similarly obtained binding affinity data) we used a bootstrapping algorithm to statistically validate our recommended threshold values and their respective sensitivity, specificity and accuracy. In brief, per HLA allele the dataset was randomly split into 2/3 training data and 1/3 test data. Applying the mentioned criteria, the optimal threshold for each prediction method was calculated based on the training data. The calculated optimal threshold was applied to the test data and sensitivity, specificity and accuracy was calculated. This was repeated 100 times. From these 100 runs of resampling, the median optimal threshold and the confidence intervals for sensitivity, specificity and accuracy were calculated (data for confidence intervals based on this bootstrapping are not shown). To check the reliability of the validated threshold on arbitrary data sets a second bootstrapping was performed. Again, our dataset was randomly split into 2/3 training data and 1/3 test data in 100 runs of resampling. The mean optimal threshold from the first bootstrapping as well as the strong, intermediate and low binding affinity threshold indicated by the methods were applied to the test data. In each run and for each applied threshold, sensitivity, specificity and accuracy was calculated. After 100 runs, the confidence intervals of sensitivity, specificity and accuracy were calculated (shown in Figs. 4, 5, S4 and S5). Differences of mean sensitivity, specificity and accuracy of applied thresholds were compared by one-way ANOVA for repeated measures followed by Dunnett's multiple comparisons test."
+
+Here, we provide the R-scipt used to perform this statistical analysis, the dataset per HLA-type and a description how to operate the script.
+
+# Cross Validation Example
+
+get cross-validation function from wd
+
+```{r}
+source("crossvalidate-data.R")
+```
+
+get data from csv file in wd
+
+```{r}
+a1_dat <- read.csv("A1.csv",sep=";",dec=".")
+
+head(a1_dat)
+```
+
+set number of cross-validations (min=100)
+
+```{r}
+b <- 100
+```
+
+give variable more a vector that contains individual threshold for each predictor aka column
+```{r}
+more <- c(8641, 6706, 7097, 5684, 9154, 7693, 5211, 0.95, 0.7, 1042, 315)
+```
+
+maxgrid gives the maximum of the window to look for optimal threshold, default is IC50=10000nM, consider increasing when optimal threshold is expected to be higher than 10000nM
+
+```{r, eval=FALSE}
+val(b, a1_dat, more, maxgrid = 10000)
+```
